@@ -41,7 +41,7 @@ public class RedisService {
                 (int) TimeUnit.SECONDS.toMillis(5), null, Protocol.DEFAULT_DATABASE, null, false, null, null, null);
     }
 
-    public <T> T get(String key, Class<T> valueClass) {
+    public static <T> T get(String key, Class<T> valueClass) {
         Preconditions.checkNotNull(key, "Key cannot be blank");
 
 
