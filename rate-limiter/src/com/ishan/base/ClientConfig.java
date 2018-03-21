@@ -1,5 +1,7 @@
 package com.ishan.base;
 
+import java.util.Map;
+
 /**
  * This holds a client's config for throttling rate limits
  *
@@ -18,7 +20,15 @@ public class ClientConfig {
      */
     private RateLimits rateLimits;
 
-    private Map<HTTPMetho>
+    /**
+     * Http Method vs limits
+     */
+    private Map<HttpMethod, RateLimits> methodVsLimits;
+
+    /**
+     * Particular endpoints limits
+     */
+    private Map<String, RateLimits> endpointVsLimits;
 
     public String getClientId() {
         return clientId;
@@ -34,6 +44,22 @@ public class ClientConfig {
 
     public void setRateLimits(RateLimits rateLimits) {
         this.rateLimits = rateLimits;
+    }
+
+    public Map<HttpMethod, RateLimits> getMethodVsLimits() {
+        return methodVsLimits;
+    }
+
+    public void setMethodVsLimits(Map<HttpMethod, RateLimits> methodVsLimits) {
+        this.methodVsLimits = methodVsLimits;
+    }
+
+    public Map<String, RateLimits> getEndpointVsLimits() {
+        return endpointVsLimits;
+    }
+
+    public void setEndpointVsLimits(Map<String, RateLimits> endpointVsLimits) {
+        this.endpointVsLimits = endpointVsLimits;
     }
 
     /**
@@ -105,6 +131,12 @@ public class ClientConfig {
 
     @Override
     public String toString() {
-        return "ClientConfig{" + "clientId='" + clientId + '\'' + ", rateLimits=" + rateLimits + '}';
+        final StringBuilder sb = new StringBuilder("ClientConfig{");
+        sb.append("clientId='").append(clientId).append('\'');
+        sb.append(", rateLimits=").append(rateLimits);
+        sb.append(", methodVsLimits=").append(methodVsLimits);
+        sb.append(", endpointVsLimits=").append(endpointVsLimits);
+        sb.append('}');
+        return sb.toString();
     }
 }
