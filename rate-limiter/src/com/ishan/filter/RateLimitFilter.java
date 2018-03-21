@@ -3,6 +3,7 @@ package com.ishan.filter;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.ishan.base.ClientConfig;
+import com.ishan.base.ClientConfigProvider;
 import com.ishan.base.HttpMethod;
 
 import javax.servlet.*;
@@ -15,8 +16,6 @@ import java.io.IOException;
  */
 public class RateLimitFilter implements Filter {
 
-    private static final Cache<String, ClientConfig> clientIdVsClientConfig = CacheBuilder.newBuilder().build();
-
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
@@ -24,10 +23,8 @@ public class RateLimitFilter implements Filter {
         String requestURI = httpServletRequest.getRequestURI();
         String method = httpServletRequest.getMethod();
         HttpMethod httpMethod = HttpMethod.valueOf(method);
-
         String clientId = extractClientId(requestURI);
-
-
+        ClientConfig clientConfig = ClientConfigProvider.getClientConfig(clientId);
 
 
         long currentTime = System.currentTimeMillis();
