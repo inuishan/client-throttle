@@ -18,6 +18,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class RedisService {
 
+    /**
+     * Ideally this could be in a properties file or this could be read from a central store or could be an
+     * initialization param. Hardcoding it for now.
+     */
     private static final String HOST = "sample.redis.host";
     private static final int PORT = 7789;
 
