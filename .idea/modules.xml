@@ -6,7 +6,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/client-throttle_main.iml" filepath="$PROJECT_DIR$/.idea/modules/client-throttle_main.iml" group="client-throttle" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/client-throttle_test.iml" filepath="$PROJECT_DIR$/.idea/modules/client-throttle_test.iml" group="client-throttle" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/rate-limiter.iml" filepath="$PROJECT_DIR$/.idea/modules/rate-limiter.iml" group="rate-limiter" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/rate-limiter/rate-limiter_main.iml" filepath="$PROJECT_DIR$/.idea/modules/rate-limiter/rate-limiter_main.iml" group="rate-limiter" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/rate-limiter/rate-limiter_test.iml" filepath="$PROJECT_DIR$/.idea/modules/rate-limiter/rate-limiter_test.iml" group="rate-limiter" />
     </modules>
   </component>
