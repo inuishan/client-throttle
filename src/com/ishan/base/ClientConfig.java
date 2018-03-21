@@ -18,6 +18,7 @@ public class ClientConfig {
      */
     private RateLimits rateLimits;
 
+    private Map<HTTPMetho>
 
     public String getClientId() {
         return clientId;
