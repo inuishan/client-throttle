@@ -2,6 +2,7 @@ package com.ishan.redis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
+import com.ishan.base.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -27,6 +28,7 @@ public class RedisService {
 
     private static final JedisPool JEDIS_POOL;
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final int MAX_RETRIES = 3;
 
     static {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
@@ -42,16 +44,13 @@ public class RedisService {
     public <T> T get(String key, Class<T> valueClass) {
         Preconditions.checkNotNull(key, "Key cannot be blank");
 
-        String completeRedisKey = computeCompleteRedisKey(prefix, key);
 
         String s = null;
         for (int i = 1; i <= MAX_RETRIES; i++) {
-            try (Jedis jedis = jedisPool.getResource()) {
-                s = jedis.get(completeRedisKey);
+            try (Jedis jedis = JEDIS_POOL.getResource()) {
+                s = jedis.get(key);
             } catch (JedisConnectionException e) {
-                LOGGER.error("", e);
                 if (i == MAX_RETRIES) {
-                    LOGGER.error("Max retires reached: " + MAX_RETRIES);
                     throw e;
                 }
                 continue;
@@ -63,9 +62,9 @@ public class RedisService {
             return null;
         }
         try {
-            return OurJsonUtils.OBJECT_MAPPER.readValue(s, valueClass);
+            return OBJECT_MAPPER.readValue(s, valueClass);
         } catch (IOException e) {
-            throw OurExceptionUtils.wrapInRuntimeExceptionIfNecessary(e);
+            throw ExceptionUtils.wrapInRuntimeExceptionIfNecessary(e);
         }
     }
 }
