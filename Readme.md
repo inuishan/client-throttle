@@ -1,0 +1,1 @@
+This project throttles a client's request in a distributed environment.
