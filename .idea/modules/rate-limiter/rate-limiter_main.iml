@@ -6,18 +6,23 @@
         <webroots>
           <root url="file://$MODULE_DIR$/../../../rate-limiter/src/main/webapp" relative="/" />
         </webroots>
-        <sourceRoots />
       </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
     <output url="file://$MODULE_DIR$/../../../rate-limiter/build/classes/main" />
     <exclude-output />
-    <content url="file://$MODULE_DIR$/../../../rate-limiter/src/main">
+    <content url="file://$MODULE_DIR$/../../../rate-limiter/resources">
+      <sourceFolder url="file://$MODULE_DIR$/../../../rate-limiter/resources" type="java-resource" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../rate-limiter/src">
+      <sourceFolder url="file://$MODULE_DIR$/../../../rate-limiter/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../rate-limiter/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/../../../rate-limiter/src/main/resources" type="java-resource" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Gradle: javax.ws.rs:javax.ws.rs-api:2.0.1" level="project" />
+    <orderEntry type="library" name="Gradle: javax.servlet:javax.servlet-api:4.0.0" level="project" />
   </component>
 </module>

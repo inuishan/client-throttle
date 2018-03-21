@@ -16,6 +16,10 @@
           <element id="module-output" name="rate-limiter_main" />
           <element id="dir-copy" path="$PROJECT_DIR$/rate-limiter/build/resources/main" />
         </element>
+        <element id="directory" name="lib">
+          <element id="library" level="project" name="Gradle: javax.ws.rs:javax.ws.rs-api:2.0.1" />
+          <element id="file-copy" path="$USER_HOME$/.gradle/caches/modules-2/files-2.1/javax.servlet/javax.servlet-api/4.0.0/60200affc2fe0165136ed3690faf00b66aed581a/javax.servlet-api-4.0.0.jar" />
+        </element>
       </element>
     </root>
   </artifact>

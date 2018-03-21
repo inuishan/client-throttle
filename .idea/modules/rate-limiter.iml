@@ -9,14 +9,12 @@
         <webroots>
           <root url="file://$MODULE_DIR$/../../rate-limiter/web" relative="/" />
         </webroots>
-        <sourceRoots />
       </configuration>
     </facet>
   </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../rate-limiter">
-      <sourceFolder url="file://$MODULE_DIR$/../../rate-limiter/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/../../rate-limiter/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/../../rate-limiter/build" />
     </content>
