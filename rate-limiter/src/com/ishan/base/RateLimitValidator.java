@@ -45,7 +45,15 @@ public class RateLimitValidator {
             ClientConfig.RateLimits endpointLimits = clientConfig.getEndpointVsLimits().get(endpoint);
             if (endpointLimits != null) {
                 // There is a limit for these endpoints
-                keys.addAll(constructRedisKeys(null, endpointLimits, clientConfig, requestDetails));
+                keys.addAll(constructRedisKeys(endpoint, endpointLimits, clientConfig, requestDetails));
+            }
+        }
+        if (MapUtils.isNotEmpty(clientConfig.getMethodVsLimits())) {
+            HttpMethod httpMethod = requestDetails.getHttpMethod();
+            ClientConfig.RateLimits rateLimits = clientConfig.getMethodVsLimits().get(httpMethod);
+            if (rateLimits != null) {
+                // There is a limit for these endpoints
+                keys.addAll(constructRedisKeys(httpMethod.name(), rateLimits, clientConfig, requestDetails));
             }
         }
         return keys;
