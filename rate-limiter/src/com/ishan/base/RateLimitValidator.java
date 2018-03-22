@@ -33,6 +33,20 @@ public class RateLimitValidator {
         return null;
     }
 
+    /**
+     * This constructs the redis keys for this request. If the client is configured to have the endpoint requests,
+     * it adds the keys for that endpoint as well. Similary for HTTPMethod.
+     * Example:
+     * keys would be (not exactly)
+     * ecom_1sec
+     * ecom_4min
+     * ecom_getPrice_10sec
+     * ecom_get_5sec
+     *
+     * @param clientConfig   The {@link ClientConfig} config of the client
+     * @param requestDetails The {@link RequestDetails} containing details of the request
+     * @return A set of constructed keys for redis
+     */
     private static Set<String> constructRedisKeys(ClientConfig clientConfig, RequestDetails requestDetails) {
         Set<String> keys = Sets.newHashSet();
         if (clientConfig.getRateLimits() != null) {
