@@ -1,5 +1,9 @@
 package com.ishan.base;
 
+import com.google.common.collect.Sets;
+
+import java.util.Set;
+
 /**
  * The main class which contains the logic of rate limiting. The basic idea is:
  * <p>
@@ -23,6 +27,17 @@ public class RateLimitValidator {
      * @return The {@link RateLimitResponse} containing the status of rate limit
      */
     public static RateLimitResponse validateRateLimited(ClientConfig clientConfig, RequestDetails requestDetails) {
+        Set<String> redisKeys = constructRedisKeys(clientConfig, requestDetails);
+        return null;
+    }
+
+    private static Set<String> constructRedisKeys(ClientConfig clientConfig, RequestDetails requestDetails) {
+        Set<String> keys = Sets.newHashSet();
+        if (clientConfig.getRateLimits() != null) {
+            //This means that this client has been configured with these limits
+            ClientConfig.RateLimits rateLimits = clientConfig.getRateLimits();
+
+        }
         return null;
     }
 

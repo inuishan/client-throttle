@@ -67,65 +67,15 @@ public class ClientConfig {
      * <b>Note</b> that the parameters are optional. So there might not exist a monthly limit.
      */
     public static class RateLimits {
-        /**
-         * Number of requests in a second
-         */
-        private Integer secondLimit;
-        /**
-         * Number of requests in a minute
-         */
-        private Integer minuteLimit;
-        /**
-         * Number of requests in an hour
-         */
-        private Integer hourLimit;
-        /**
-         * Number of requests in a week
-         */
-        private Integer weekLimit;
-        /**
-         * Number of requests in a month
-         */
-        private Integer monthLimit;
 
-        public Integer getSecondLimit() {
-            return secondLimit;
+        private Map<RateLimitPeriod, Integer> periodLimits;
+
+        public Map<RateLimitPeriod, Integer> getPeriodLimits() {
+            return periodLimits;
         }
 
-        public void setSecondLimit(Integer secondLimit) {
-            this.secondLimit = secondLimit;
-        }
-
-        public Integer getMinuteLimit() {
-            return minuteLimit;
-        }
-
-        public void setMinuteLimit(Integer minuteLimit) {
-            this.minuteLimit = minuteLimit;
-        }
-
-        public Integer getHourLimit() {
-            return hourLimit;
-        }
-
-        public void setHourLimit(Integer hourLimit) {
-            this.hourLimit = hourLimit;
-        }
-
-        public Integer getWeekLimit() {
-            return weekLimit;
-        }
-
-        public void setWeekLimit(Integer weekLimit) {
-            this.weekLimit = weekLimit;
-        }
-
-        public Integer getMonthLimit() {
-            return monthLimit;
-        }
-
-        public void setMonthLimit(Integer monthLimit) {
-            this.monthLimit = monthLimit;
+        public void setPeriodLimits(Map<RateLimitPeriod, Integer> periodLimits) {
+            this.periodLimits = periodLimits;
         }
     }
 
