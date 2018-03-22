@@ -39,6 +39,7 @@ public class RateLimitValidator {
             ClientConfig.RateLimits rateLimits = clientConfig.getRateLimits();
             keys.addAll(constructRedisKeys(null, rateLimits, clientConfig, requestDetails));
         }
+        if(MapUtils)
         return keys;
     }
 
