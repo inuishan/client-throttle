@@ -16,6 +16,17 @@ package com.ishan.base;
  */
 public class RateLimitValidator {
 
+
+    /**
+     * This validates whether the client is within rate limits or not
+     *
+     * @return The {@link RateLimitResponse} containing the status of rate limit
+     */
+    public static RateLimitResponse validateRateLimited() {
+        return null;
+    }
+
+
     /**
      * Holder class for the response
      */
