@@ -1,6 +1,7 @@
 package com.ishan.base;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
 
@@ -36,9 +37,20 @@ public class RateLimitValidator {
         if (clientConfig.getRateLimits() != null) {
             //This means that this client has been configured with these limits
             ClientConfig.RateLimits rateLimits = clientConfig.getRateLimits();
+            keys.addAll(constructRedisKeys("", rateLimits, clientConfig, requestDetails));
+        }
+        return keys;
+    }
+
+    private static Set<String> constructRedisKeys(String prefix, ClientConfig.RateLimits rateLimits,
+                                                  ClientConfig clientConfig, RequestDetails requestDetails) {
+        StringBuilder keyBuilder = new StringBuilder(clientConfig.getClientId());
+        if (StringUtils.isNotBlank(prefix)) {
+            keyBuilder.append(prefix);
+        }
+        for (RateLimitPeriod rateLimitPeriod : rateLimits.getPeriodLimits().keySet()) {
 
         }
-        return null;
     }
 
 
