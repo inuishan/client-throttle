@@ -37,20 +37,24 @@ public class RateLimitValidator {
         if (clientConfig.getRateLimits() != null) {
             //This means that this client has been configured with these limits
             ClientConfig.RateLimits rateLimits = clientConfig.getRateLimits();
-            keys.addAll(constructRedisKeys("", rateLimits, clientConfig, requestDetails));
+            keys.addAll(constructRedisKeys(null, rateLimits, clientConfig, requestDetails));
         }
         return keys;
     }
 
     private static Set<String> constructRedisKeys(String prefix, ClientConfig.RateLimits rateLimits,
                                                   ClientConfig clientConfig, RequestDetails requestDetails) {
-        StringBuilder keyBuilder = new StringBuilder(clientConfig.getClientId());
-        if (StringUtils.isNotBlank(prefix)) {
-            keyBuilder.append(prefix);
-        }
+        Set<String> rv = Sets.newHashSet();
         for (RateLimitPeriod rateLimitPeriod : rateLimits.getPeriodLimits().keySet()) {
-
+            StringBuilder keyBuilder = new StringBuilder(clientConfig.getClientId());
+            if (StringUtils.isNotBlank(prefix)) {
+                keyBuilder.append(prefix);
+            }
+            keyBuilder.append(rateLimitPeriod.wrap(requestDetails.getRequestTime()));
+            keyBuilder.append(rateLimitPeriod);
+            rv.add(keyBuilder.toString());
         }
+        return rv;
     }
 
 
