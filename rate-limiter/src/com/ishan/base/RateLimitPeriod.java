@@ -31,6 +31,8 @@ public enum RateLimitPeriod {
                 return dateTime.dayOfWeek().withMinimumValue().millisOfDay().withMinimumValue().getMillis();
             case MONTH:
                 return dateTime.dayOfMonth().withMinimumValue().millisOfDay().withMinimumValue().getMillis();
+            default:
+                throw new IllegalArgumentException("This period is not yet supported");
         }
     }
 }
