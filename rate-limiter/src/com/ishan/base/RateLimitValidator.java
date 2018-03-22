@@ -22,7 +22,7 @@ public class RateLimitValidator {
      *
      * @return The {@link RateLimitResponse} containing the status of rate limit
      */
-    public static RateLimitResponse validateRateLimited() {
+    public static RateLimitResponse validateRateLimited(ClientConfig clientConfig, RequestDetails requestDetails) {
         return null;
     }
 
