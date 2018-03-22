@@ -1,6 +1,7 @@
 package com.ishan.base;
 
 import com.google.common.collect.Sets;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Set;
@@ -39,7 +40,14 @@ public class RateLimitValidator {
             ClientConfig.RateLimits rateLimits = clientConfig.getRateLimits();
             keys.addAll(constructRedisKeys(null, rateLimits, clientConfig, requestDetails));
         }
-        if(MapUtils)
+        if (MapUtils.isNotEmpty(clientConfig.getEndpointVsLimits())) {
+            String endpoint = requestDetails.getEndpoint();
+            ClientConfig.RateLimits endpointLimits = clientConfig.getEndpointVsLimits().get(endpoint);
+            if (endpointLimits != null) {
+                // There is a limit for these endpoints
+                keys.addAll(constructRedisKeys(null, endpointLimits, clientConfig, requestDetails));
+            }
+        }
         return keys;
     }
 
