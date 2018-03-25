@@ -5,6 +5,7 @@ import com.ishan.redis.RedisService;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -31,7 +32,7 @@ public class RateLimitValidator {
      */
     public static RateLimitResponse validateRateLimited(ClientConfig clientConfig, RequestDetails requestDetails) {
         Set<RedisKeyWithTTL> redisKeys = constructRedisKeys(clientConfig, requestDetails);
-        RedisService.
+        List<Object> pipeline = RedisService.pipeline(redisKeys);
         return null;
     }
 
