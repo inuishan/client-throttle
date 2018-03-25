@@ -1,11 +1,15 @@
 package com.ishan.base;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.ishan.redis.RedisService;
 import org.apache.commons.collections4.MapUtils;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -45,6 +49,9 @@ public class RateLimitValidator {
      */
     private static RateLimitResponse validateRateLimited(List<Object> pipeline, ClientConfig clientConfig,
                                                          List<RedisKeyDetails> redisKeyWithTTLs) {
+
+
+
         return RateLimitResponse.withRateLimitNotReached();
     }
 
@@ -110,69 +117,10 @@ public class RateLimitValidator {
         return rv;
     }
 
-
-
-
-    /**
-     * Holder class for the response
-     */
-    public static class RateLimitResponse {
-        /**
-         * Whether the rate limit was reached or not
-         */
-        private boolean rateLimitReached;
-
-        /**
-         * If the rate limit was reached, then which period's limit that it violated
-         */
-        private RateLimitPeriod rateLimitPeriod;
-
-        /**
-         * If the rate limit was reached, then which limit did the request break
-         */
-        private RateLimitViolationCause rateLimitViolationCause;
-
-        //Enforcing use of static constructor
-        private RateLimitResponse() {
-
+    public static <K, V> Map<K, V> transformMap(Iterable<? extends V> values, Function<? super V, K> keyFunction) {
+        if (values == null) {
+            return Collections.emptyMap();
         }
-
-        public static RateLimitResponse withRateLimitReached(RateLimitPeriod period, RateLimitViolationCause cause) {
-            RateLimitResponse rateLimitResponse = new RateLimitResponse();
-            rateLimitResponse.setRateLimitReached(true);
-            rateLimitResponse.setRateLimitPeriod(period);
-            rateLimitResponse.setRateLimitViolationCause(cause);
-            return rateLimitResponse;
-        }
-
-        public static RateLimitResponse withRateLimitNotReached() {
-            RateLimitResponse rateLimitResponse = new RateLimitResponse();
-            rateLimitResponse.setRateLimitReached(false);
-            return rateLimitResponse;
-        }
-
-        public boolean getRateLimitReached() {
-            return rateLimitReached;
-        }
-
-        public void setRateLimitReached(boolean rateLimitReached) {
-            this.rateLimitReached = rateLimitReached;
-        }
-
-        public RateLimitPeriod getRateLimitPeriod() {
-            return rateLimitPeriod;
-        }
-
-        public void setRateLimitPeriod(RateLimitPeriod rateLimitPeriod) {
-            this.rateLimitPeriod = rateLimitPeriod;
-        }
-
-        public RateLimitViolationCause getRateLimitViolationCause() {
-            return rateLimitViolationCause;
-        }
-
-        public void setRateLimitViolationCause(RateLimitViolationCause rateLimitViolationCause) {
-            this.rateLimitViolationCause = rateLimitViolationCause;
-        }
+        return Maps.<K, V>newHashMap(Maps.uniqueIndex(values.iterator(), keyFunction));
     }
 }
