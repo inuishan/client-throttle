@@ -70,8 +70,17 @@ The counts are then matched to the limits defined in the clientConfig to decide 
     </tr>
 </table>
 
-<h3>Assumptions:
+<h3>Assumptions:</h3>
 <ul>
 <li>A client's config always exists.</li>
 <li>Client id is present in a header.</li>
 </ul>
+
+<h3>Performance Considerations:</h3>
+This makes redis calls for every request for the accuracy. If we want performance then we could consider adding following:
+<ul>
+<li>in-meory caching and intelligently check the DB or we could use.</li>
+<li>Redis calls could be async.</li>
+<li>Pub-Sub could be used in conjunction to in-memory caching.</li>
+<li>If a rate limit has occurred, then every node should block the request for the remaining time, without checking the database.</li>
+</ul> 
