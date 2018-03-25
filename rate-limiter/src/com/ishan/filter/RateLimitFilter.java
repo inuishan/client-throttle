@@ -1,11 +1,14 @@
 package com.ishan.filter;
 
 import com.ishan.base.*;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * @author ishanjain
@@ -17,31 +20,42 @@ public class RateLimitFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+
         String requestURI = httpServletRequest.getRequestURI();
-        String method = httpServletRequest.getMethod();
-        HttpMethod httpMethod = HttpMethod.valueOf(method);
-        String clientId = extractClientId(requestURI);
-        ClientConfig clientConfig = ClientConfigProvider.getClientConfig(clientId);
 
-        long currentTime = System.currentTimeMillis();
+        String clientId = extractClientId(httpServletRequest);
 
-        RateLimitValidator.RateLimitResponse rateLimitResponse = RateLimitValidator.validateRateLimited(clientConfig,
-                new RequestDetails(currentTime, httpMethod, extractEndPoint(requestURI), extractClientId(requestURI)));
+        if (StringUtils.isBlank(clientId)) {
+            httpServletResponse.sendError(403, "Unauthorized: Client id expected in header");
+        } else {
 
-        boolean rateLimitReached = rateLimitResponse.getRateLimitReached();
+            String method = httpServletRequest.getMethod();
+            HttpMethod httpMethod = HttpMethod.valueOf(method);
 
-        if (rateLimitReached) {
-            HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-            httpServletResponse
-                    .sendError(429, "Rate limit exceeded for period " + rateLimitResponse.getRateLimitPeriod());
+            ClientConfig clientConfig = ClientConfigProvider.getClientConfig(clientId);
+
+            long currentTime = System.currentTimeMillis();
+
+            RateLimitValidator.RateLimitResponse rateLimitResponse = RateLimitValidator
+                    .validateRateLimited(clientConfig,
+                            new RequestDetails(currentTime, httpMethod, extractEndPoint(requestURI),
+                                    extractClientId(requestURI)));
+
+            boolean rateLimitReached = rateLimitResponse.getRateLimitReached();
+
+            if (rateLimitReached) {
+
+                httpServletResponse
+                        .sendError(429, "Rate limit exceeded for period " + rateLimitResponse.getRateLimitPeriod());
+            }
+
+            chain.doFilter(request, response);
         }
-
-        chain.doFilter(request, response);
     }
 
-    private String extractClientId(String requestURI) {
-
-        return null;
+    private String extractClientId(HttpServletRequest httpServletRequest) {
+        return httpServletRequest.getHeader("clientId");
     }
 
     private String extractEndPoint(String requestUri) {
