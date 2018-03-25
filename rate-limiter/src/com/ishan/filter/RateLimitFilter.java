@@ -1,13 +1,10 @@
 package com.ishan.filter;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.ishan.base.ClientConfig;
-import com.ishan.base.ClientConfigProvider;
-import com.ishan.base.HttpMethod;
+import com.ishan.base.*;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -26,15 +23,27 @@ public class RateLimitFilter implements Filter {
         String clientId = extractClientId(requestURI);
         ClientConfig clientConfig = ClientConfigProvider.getClientConfig(clientId);
 
-
         long currentTime = System.currentTimeMillis();
 
+        RateLimitValidator.RateLimitResponse rateLimitResponse = RateLimitValidator.validateRateLimited(clientConfig,
+                new RequestDetails(currentTime, httpMethod, extractEndPoint(requestURI), extractClientId(requestURI)));
+
+        boolean rateLimitReached = rateLimitResponse.getRateLimitReached();
+
+        if(rateLimitReached) {
+            HttpServletResponse httpServletResponse = (HttpServletResponse) response;
+            httpServletResponse.sendError();
+        }
 
         chain.doFilter(request, response);
     }
 
     private String extractClientId(String requestURI) {
 
+        return null;
+    }
+
+    private String extractEndPoint(String requestUri) {
 
     }
 }

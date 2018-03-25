@@ -16,6 +16,13 @@ public class RequestDetails {
 
     private String clientId;
 
+    public RequestDetails(long requestTime, HttpMethod httpMethod, String endpoint, String clientId) {
+        this.requestTime = requestTime;
+        this.httpMethod = httpMethod;
+        this.endpoint = endpoint;
+        this.clientId = clientId;
+    }
+
     public long getRequestTime() {
         return requestTime;
     }
@@ -46,5 +53,25 @@ public class RequestDetails {
 
     public void setClientId(String clientId) {
         this.clientId = clientId;
+    }
+
+    public RequestDetails requestTime(final long requestTime) {
+        this.requestTime = requestTime;
+        return this;
+    }
+
+    public RequestDetails httpMethod(final HttpMethod httpMethod) {
+        this.httpMethod = httpMethod;
+        return this;
+    }
+
+    public RequestDetails endpoint(final String endpoint) {
+        this.endpoint = endpoint;
+        return this;
+    }
+
+    public RequestDetails clientId(final String clientId) {
+        this.clientId = clientId;
+        return this;
     }
 }
