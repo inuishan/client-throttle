@@ -1,14 +1,14 @@
 package com.ishan.filter;
 
 import com.ishan.base.*;
+import com.sun.jndi.toolkit.url.Uri;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 
 /**
  * @author ishanjain
@@ -37,10 +37,10 @@ public class RateLimitFilter implements Filter {
 
             long currentTime = System.currentTimeMillis();
 
+            String endpoint = extractEndPoint(requestURI);
+
             RateLimitValidator.RateLimitResponse rateLimitResponse = RateLimitValidator
-                    .validateRateLimited(clientConfig,
-                            new RequestDetails(currentTime, httpMethod, extractEndPoint(requestURI),
-                                    extractClientId(requestURI)));
+                    .validateRateLimited(clientConfig, new RequestDetails(currentTime, httpMethod, endpoint, clientId));
 
             boolean rateLimitReached = rateLimitResponse.getRateLimitReached();
 
@@ -48,9 +48,9 @@ public class RateLimitFilter implements Filter {
 
                 httpServletResponse
                         .sendError(429, "Rate limit exceeded for period " + rateLimitResponse.getRateLimitPeriod());
+            } else {
+                chain.doFilter(request, response);
             }
-
-            chain.doFilter(request, response);
         }
     }
 
@@ -59,6 +59,12 @@ public class RateLimitFilter implements Filter {
     }
 
     private String extractEndPoint(String requestUri) {
-
+        try {
+            Uri uri = new Uri(requestUri);
+            return uri.getPath();
+        } catch (MalformedURLException e) {
+            //ignored
+        }
+        return null;
     }
 }
