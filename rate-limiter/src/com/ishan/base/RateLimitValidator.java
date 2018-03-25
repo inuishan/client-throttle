@@ -39,7 +39,7 @@ public class RateLimitValidator {
 
     /**
      * This actually checks if the corresponding values received from redis.
-     *
+     * <p>
      * This firstly checks if the limit is exceeded for a client.
      * It then checks for endpoint.
      * It then checks for method.
@@ -140,7 +140,7 @@ public class RateLimitValidator {
             }
             redisKeyWithTTL.setClientId(clientConfig.getClientId());
             redisKeyWithTTL.setPeriod(rateLimitPeriod);
-            redisKeyWithTTL.generateRedisKey(requestDetails.getRequestTime());
+            redisKeyWithTTL.generateRedisKey(rateLimitPeriod.wrap(requestDetails.getRequestTime()));
             rv.add(redisKeyWithTTL);
         }
         return rv;
