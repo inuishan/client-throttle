@@ -34,7 +34,7 @@ public class RateLimitValidator {
     public static RateLimitResponse validateRateLimited(ClientConfig clientConfig, RequestDetails requestDetails) {
         List<RedisKeyWithTTL> redisKeys = constructRedisKeys(clientConfig, requestDetails);
         List<Object> pipeline = RedisService.pipeline(redisKeys);
-        return validateRateLimited(pipeline, clientConfig);
+        return validateRateLimited(pipeline, clientConfig, redisKeys);
     }
 
     /**
@@ -44,7 +44,7 @@ public class RateLimitValidator {
      * @param clientConfig The {@link ClientConfig} config for the client
      * @return The {@link RateLimitResponse} response for rate limits
      */
-    private static RateLimitResponse validateRateLimited(List<Object> pipeline, ClientConfig clientConfig) {
+    private static RateLimitResponse validateRateLimited(List<Object> pipeline, ClientConfig clientConfig, List<RedisKeyWithTTL> redisKeyWithTTLs) {
         return RateLimitResponse.withRateLimitNotReached();
     }
 
