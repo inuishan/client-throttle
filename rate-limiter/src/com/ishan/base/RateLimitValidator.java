@@ -29,7 +29,7 @@ public class RateLimitValidator {
      * @return The {@link RateLimitResponse} containing the status of rate limit
      */
     public static RateLimitResponse validateRateLimited(ClientConfig clientConfig, RequestDetails requestDetails) {
-        Set<String> redisKeys = constructRedisKeys(clientConfig, requestDetails);
+        Set<RedisKeyWithTTL> redisKeys = constructRedisKeys(clientConfig, requestDetails);
         return null;
     }
 
@@ -47,8 +47,8 @@ public class RateLimitValidator {
      * @param requestDetails The {@link RequestDetails} containing details of the request
      * @return A set of constructed keys for redis
      */
-    private static Set<String> constructRedisKeys(ClientConfig clientConfig, RequestDetails requestDetails) {
-        Set<String> keys = Sets.newHashSet();
+    private static Set<RedisKeyWithTTL> constructRedisKeys(ClientConfig clientConfig, RequestDetails requestDetails) {
+        Set<RedisKeyWithTTL> keys = Sets.newHashSet();
         if (clientConfig.getRateLimits() != null) {
             //This means that this client has been configured with these limits
             ClientConfig.RateLimits rateLimits = clientConfig.getRateLimits();
@@ -73,19 +73,36 @@ public class RateLimitValidator {
         return keys;
     }
 
-    private static Set<String> constructRedisKeys(String prefix, ClientConfig.RateLimits rateLimits,
-                                                  ClientConfig clientConfig, RequestDetails requestDetails) {
-        Set<String> rv = Sets.newHashSet();
+    private static Set<RedisKeyWithTTL> constructRedisKeys(String prefix, ClientConfig.RateLimits rateLimits,
+                                                           ClientConfig clientConfig, RequestDetails requestDetails) {
+        Set<RedisKeyWithTTL> rv = Sets.newHashSet();
         for (RateLimitPeriod rateLimitPeriod : rateLimits.getPeriodLimits().keySet()) {
             StringBuilder keyBuilder = new StringBuilder(clientConfig.getClientId());
             if (StringUtils.isNotBlank(prefix)) {
                 keyBuilder.append(prefix);
             }
             keyBuilder.append(rateLimitPeriod.wrap(requestDetails.getRequestTime()));
+            long nextSlot = rateLimitPeriod.wrapNext(requestDetails.getRequestTime());
+            long ttl = nextSlot - requestDetails.getRequestTime();
             keyBuilder.append(rateLimitPeriod);
-            rv.add(keyBuilder.toString());
+            rv.add(new RedisKeyWithTTL(keyBuilder.toString(), ttl));
         }
         return rv;
+    }
+
+    /**
+     * Stores Redis Keys with ttl
+     */
+    private static class RedisKeyWithTTL {
+
+        private final String key;
+
+        private final long ttl;
+
+        private RedisKeyWithTTL(String key, long ttl) {
+            this.key = key;
+            this.ttl = ttl;
+        }
     }
 
 
