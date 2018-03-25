@@ -23,11 +23,15 @@ Lets take a sample clientConfig:
   }
 }
 
-There will be 3 keys constructed. Lets say the request came at 5 minutes and 10 seconds & 100 milliseconds.
+There will be 3 keys constructed. Lets say the request came at 5 minutes and 10 seconds & 100 milliseconds. They are wrapped to the nearest unit. So a request coming in on a Wednesday would be wrapped to Sunday while calculating the weekly limits.
 
 The keys would look something like:
 
-ecom_second_5
-ecom_minute_10
+ecom_second_5 <br>
+ecom_minute_10 <br>
 ecom_second_price_5
+
+We are using <b>Redis Pipelines</b> to reduce the Round Trip Time to the redis server.
+
+We increment the count of the following keys by 1 and <b>also set the expiry time</b> so that clean up is performed automatically by redis. 
 
