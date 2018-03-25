@@ -71,3 +71,7 @@ The counts are then matched to the limits defined in the clientConfig to decide 
 </table>
 
 <h3>Assumptions:
+<ul>
+<li>A client's config always exists.</li>
+<li>Client id is present in a header.</li>
+</ul>
