@@ -3,7 +3,7 @@ package com.ishan.redis;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.ishan.base.ExceptionUtils;
-import com.ishan.base.RateLimitValidator;
+import com.ishan.base.RedisKeyDetails;
 import org.apache.commons.lang3.StringUtils;
 import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.JedisConnectionException;
@@ -66,9 +66,9 @@ public class RedisService {
         }
     }
 
-    public static List<Object> pipeline(List<RateLimitValidator.RedisKeyWithTTL> redisKeysWithTTL) {
+    public static List<Object> pipeline(List<RedisKeyDetails> redisKeysWithTTL) {
         Pipeline pipelined = JEDIS_POOL.getResource().pipelined();
-        for (RateLimitValidator.RedisKeyWithTTL redisKeyWithTTL : redisKeysWithTTL) {
+        for (RedisKeyDetails redisKeyWithTTL : redisKeysWithTTL) {
             pipelined.incr(redisKeyWithTTL.getKey());
             pipelined.expire(redisKeyWithTTL.getKey(), getSeconds(redisKeyWithTTL.getTtl()));
         }
