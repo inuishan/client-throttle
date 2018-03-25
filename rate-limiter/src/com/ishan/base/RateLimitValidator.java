@@ -1,13 +1,10 @@
 package com.ishan.base;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.ishan.redis.RedisService;
 import org.apache.commons.collections4.MapUtils;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -147,12 +144,5 @@ public class RateLimitValidator {
             rv.add(redisKeyWithTTL);
         }
         return rv;
-    }
-
-    public static <K, V> Map<K, V> transformMap(Iterable<? extends V> values, Function<? super V, K> keyFunction) {
-        if (values == null) {
-            return Collections.emptyMap();
-        }
-        return Maps.<K, V>newHashMap(Maps.uniqueIndex(values.iterator(), keyFunction));
     }
 }
