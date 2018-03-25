@@ -20,7 +20,7 @@ public class RedisKeyDetails {
 
     private RateLimitPeriod period;
 
-    private RedisKeyDetails(long ttl) {
+    public RedisKeyDetails(long ttl) {
         this.ttl = ttl;
     }
 
