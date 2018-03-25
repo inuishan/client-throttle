@@ -2,7 +2,7 @@ This project throttles a client's request in a distributed environment.
 
 The client can have different rate limit configs. The rate limit periods are defined in com.ishan.base.RateLimitPeriod.
 
-<h3>Logic:
+<h3>Logic:</h3>
 
 This uses redis as a store for getting the current limits. Whenever a request comes, com.ishan.filter.RateLimitFilter asks com.ishan.base.RateLimitValidator.validateRateLimited(com.ishan.base.ClientConfig, com.ishan.base.RequestDetails) whether the current request adheres to the rate limit or not.
 
@@ -37,7 +37,7 @@ We increment the count of the following keys by 1 and <b>also set the expiry tim
 
 The counts are then matched to the limits defined in the clientConfig to decide whether the request is within the limits.
 
-<h3>A description of important classes
+<h3>A description of important classes:</h3>
 
 <table>
     <tr>
