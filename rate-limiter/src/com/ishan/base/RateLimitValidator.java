@@ -49,9 +49,22 @@ public class RateLimitValidator {
      */
     private static RateLimitResponse validateRateLimited(List<Object> pipeline, ClientConfig clientConfig,
                                                          List<RedisKeyDetails> redisKeyWithTTLs) {
-
-
-
+        Map<String, RedisKeyDetails> keyVsDetails = transformMap(redisKeyWithTTLs, RedisKeyDetails::getKey);
+        int index = 0;
+        for (Object currentLimitObj : pipeline) {
+            long currentLimit = (long) currentLimitObj;
+            RedisKeyDetails redisKeyDetails = redisKeyWithTTLs.get(index++);
+            if (redisKeyDetails.getEndpoint() == null && redisKeyDetails.getHttpMethod() == null) {
+                //This is client specific limits
+                ClientConfig.RateLimits rateLimits = clientConfig.getRateLimits();
+                Map<RateLimitPeriod, Integer> periodLimits = rateLimits.getPeriodLimits();
+                RateLimitPeriod period = redisKeyDetails.getPeriod();
+                Integer limit = periodLimits.get(period);
+                if (currentLimit > limit) {
+                    return RateLimitResponse.withRateLimitReached(period, RateLimitViolationCause.CLIENT);
+                }
+            }
+        }
         return RateLimitResponse.withRateLimitNotReached();
     }
 
