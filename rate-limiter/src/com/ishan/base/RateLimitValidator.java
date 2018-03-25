@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.ishan.redis.RedisService;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -40,11 +39,12 @@ public class RateLimitValidator {
     /**
      * This actually checks if the corresponding values received from
      *
-     * @param pipeline The response from Redis pipeline
+     * @param pipeline     The response from Redis pipeline
      * @param clientConfig The {@link ClientConfig} config for the client
      * @return The {@link RateLimitResponse} response for rate limits
      */
-    private static RateLimitResponse validateRateLimited(List<Object> pipeline, ClientConfig clientConfig, List<RedisKeyWithTTL> redisKeyWithTTLs) {
+    private static RateLimitResponse validateRateLimited(List<Object> pipeline, ClientConfig clientConfig,
+                                                         List<RedisKeyWithTTL> redisKeyWithTTLs) {
         return RateLimitResponse.withRateLimitNotReached();
     }
 
@@ -67,14 +67,14 @@ public class RateLimitValidator {
         if (clientConfig.getRateLimits() != null) {
             //This means that this client has been configured with these limits
             ClientConfig.RateLimits rateLimits = clientConfig.getRateLimits();
-            keys.addAll(constructRedisKeys(null, rateLimits, clientConfig, requestDetails));
+            keys.addAll(constructRedisKeys(null, null, rateLimits, clientConfig, requestDetails));
         }
         if (MapUtils.isNotEmpty(clientConfig.getEndpointVsLimits())) {
             String endpoint = requestDetails.getEndpoint();
             ClientConfig.RateLimits endpointLimits = clientConfig.getEndpointVsLimits().get(endpoint);
             if (endpointLimits != null) {
                 // There is a limit for these endpoints
-                keys.addAll(constructRedisKeys(endpoint, endpointLimits, clientConfig, requestDetails));
+                keys.addAll(constructRedisKeys(endpoint, null, endpointLimits, clientConfig, requestDetails));
             }
         }
         if (MapUtils.isNotEmpty(clientConfig.getMethodVsLimits())) {
@@ -82,25 +82,30 @@ public class RateLimitValidator {
             ClientConfig.RateLimits rateLimits = clientConfig.getMethodVsLimits().get(httpMethod);
             if (rateLimits != null) {
                 // There is a limit for these endpoints
-                keys.addAll(constructRedisKeys(httpMethod.name(), rateLimits, clientConfig, requestDetails));
+                keys.addAll(constructRedisKeys(null, httpMethod, rateLimits, clientConfig, requestDetails));
             }
         }
         return keys;
     }
 
-    private static Set<RedisKeyWithTTL> constructRedisKeys(String prefix, ClientConfig.RateLimits rateLimits,
+    private static Set<RedisKeyWithTTL> constructRedisKeys(String endpoint, HttpMethod method,
+                                                           ClientConfig.RateLimits rateLimits,
                                                            ClientConfig clientConfig, RequestDetails requestDetails) {
         Set<RedisKeyWithTTL> rv = Sets.newHashSet();
         for (RateLimitPeriod rateLimitPeriod : rateLimits.getPeriodLimits().keySet()) {
-            StringBuilder keyBuilder = new StringBuilder(clientConfig.getClientId());
-            if (StringUtils.isNotBlank(prefix)) {
-                keyBuilder.append(prefix);
-            }
-            keyBuilder.append(rateLimitPeriod.wrap(requestDetails.getRequestTime()));
             long nextSlot = rateLimitPeriod.wrapNext(requestDetails.getRequestTime());
             long ttl = nextSlot - requestDetails.getRequestTime();
-            keyBuilder.append(rateLimitPeriod);
-            rv.add(new RedisKeyWithTTL(keyBuilder.toString(), ttl));
+            RedisKeyWithTTL redisKeyWithTTL = new RedisKeyWithTTL(ttl);
+            if (endpoint != null) {
+                redisKeyWithTTL.setEndpoint(endpoint);
+            }
+            if (method != null) {
+                redisKeyWithTTL.setHttpMethod(method.name());
+            }
+            redisKeyWithTTL.setClientId(clientConfig.getClientId());
+            redisKeyWithTTL.setPeriod(rateLimitPeriod);
+            redisKeyWithTTL.generateRedisKey(requestDetails.getRequestTime());
+            rv.add(redisKeyWithTTL);
         }
         return rv;
     }
@@ -110,13 +115,44 @@ public class RateLimitValidator {
      */
     public static class RedisKeyWithTTL {
 
-        private final String key;
+        private String key;
 
         private final long ttl;
 
-        private RedisKeyWithTTL(String key, long ttl) {
-            this.key = key;
+        private String endpoint;
+
+        private String httpMethod;
+
+        private String clientId;
+
+        private RateLimitPeriod period;
+
+        private RedisKeyWithTTL(long ttl) {
             this.ttl = ttl;
+        }
+
+        public String getEndpoint() {
+            return endpoint;
+        }
+
+        public void setEndpoint(String endpoint) {
+            this.endpoint = endpoint;
+        }
+
+        public String getHttpMethod() {
+            return httpMethod;
+        }
+
+        public void setHttpMethod(String httpMethod) {
+            this.httpMethod = httpMethod;
+        }
+
+        public String getClientId() {
+            return clientId;
+        }
+
+        public void setClientId(String clientId) {
+            this.clientId = clientId;
         }
 
         public String getKey() {
@@ -125,6 +161,49 @@ public class RateLimitValidator {
 
         public long getTtl() {
             return ttl;
+        }
+
+        public RateLimitPeriod getPeriod() {
+            return period;
+        }
+
+        public void setPeriod(RateLimitPeriod period) {
+            this.period = period;
+        }
+
+        public void generateRedisKey(long requestTime) {
+            StringBuilder keybuilder = new StringBuilder(clientId);
+            if (endpoint != null) {
+                keybuilder.append("_").append(endpoint);
+            }
+            if (httpMethod != null) {
+                keybuilder.append("_").append(httpMethod);
+            }
+            keybuilder.append("_").append(period);
+            keybuilder.append("_").append(requestTime);
+            this.key = keybuilder.toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            RedisKeyWithTTL that = (RedisKeyWithTTL) o;
+
+            if (endpoint != null ? !endpoint.equals(that.endpoint) : that.endpoint != null) return false;
+            if (httpMethod != null ? !httpMethod.equals(that.httpMethod) : that.httpMethod != null) return false;
+            if (clientId != null ? !clientId.equals(that.clientId) : that.clientId != null) return false;
+            return period == that.period;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = endpoint != null ? endpoint.hashCode() : 0;
+            result = 31 * result + (httpMethod != null ? httpMethod.hashCode() : 0);
+            result = 31 * result + (clientId != null ? clientId.hashCode() : 0);
+            result = 31 * result + (period != null ? period.hashCode() : 0);
+            return result;
         }
     }
 
