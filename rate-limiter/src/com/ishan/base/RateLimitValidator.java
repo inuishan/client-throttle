@@ -1,6 +1,7 @@
 package com.ishan.base;
 
 import com.google.common.collect.Sets;
+import com.ishan.redis.RedisService;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -30,6 +31,7 @@ public class RateLimitValidator {
      */
     public static RateLimitResponse validateRateLimited(ClientConfig clientConfig, RequestDetails requestDetails) {
         Set<RedisKeyWithTTL> redisKeys = constructRedisKeys(clientConfig, requestDetails);
+        RedisService.
         return null;
     }
 
@@ -93,7 +95,7 @@ public class RateLimitValidator {
     /**
      * Stores Redis Keys with ttl
      */
-    private static class RedisKeyWithTTL {
+    public static class RedisKeyWithTTL {
 
         private final String key;
 
@@ -102,6 +104,14 @@ public class RateLimitValidator {
         private RedisKeyWithTTL(String key, long ttl) {
             this.key = key;
             this.ttl = ttl;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public long getTtl() {
+            return ttl;
         }
     }
 

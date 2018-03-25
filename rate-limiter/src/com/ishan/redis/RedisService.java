@@ -3,14 +3,14 @@ package com.ishan.redis;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Preconditions;
 import com.ishan.base.ExceptionUtils;
+import com.ishan.base.RateLimitValidator;
 import org.apache.commons.lang3.StringUtils;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import redis.clients.jedis.Protocol;
+import redis.clients.jedis.*;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -44,7 +44,6 @@ public class RedisService {
     public static <T> T get(String key, Class<T> valueClass) {
         Preconditions.checkNotNull(key, "Key cannot be blank");
 
-
         String s = null;
         for (int i = 1; i <= MAX_RETRIES; i++) {
             try (Jedis jedis = JEDIS_POOL.getResource()) {
@@ -66,5 +65,23 @@ public class RedisService {
         } catch (IOException e) {
             throw ExceptionUtils.wrapInRuntimeExceptionIfNecessary(e);
         }
+    }
+
+    public static List<Object> pipeline(Set<RateLimitValidator.RedisKeyWithTTL> redisKeysWithTTL) {
+        Pipeline pipelined = JEDIS_POOL.getResource().pipelined();
+        for (RateLimitValidator.RedisKeyWithTTL redisKeyWithTTL : redisKeysWithTTL) {
+            pipelined.get(redisKeyWithTTL.getKey());
+            pipelined.expire(redisKeyWithTTL.getKey(), getSeconds(redisKeyWithTTL.getTtl()));
+        }
+        return pipelined.syncAndReturnAll();
+    }
+
+    private static int getSeconds(long ttl) {
+        long seconds = ttl / 1000;
+        if (seconds == 0) {
+            // Handling second case
+            seconds = 1;
+        }
+        return (int) seconds;
     }
 }
