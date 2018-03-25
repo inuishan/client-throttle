@@ -30,9 +30,10 @@ public class RateLimitFilter implements Filter {
 
         boolean rateLimitReached = rateLimitResponse.getRateLimitReached();
 
-        if(rateLimitReached) {
+        if (rateLimitReached) {
             HttpServletResponse httpServletResponse = (HttpServletResponse) response;
-            httpServletResponse.sendError();
+            httpServletResponse
+                    .sendError(429, "Rate limit exceeded for period " + rateLimitResponse.getRateLimitPeriod());
         }
 
         chain.doFilter(request, response);
