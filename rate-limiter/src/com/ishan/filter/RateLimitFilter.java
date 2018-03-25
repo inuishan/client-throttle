@@ -3,6 +3,8 @@ package com.ishan.filter;
 import com.ishan.base.*;
 import com.sun.jndi.toolkit.url.Uri;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -15,6 +17,8 @@ import java.net.MalformedURLException;
  * @since 21/03/18
  */
 public class RateLimitFilter implements Filter {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RateLimitFilter.class);
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -45,7 +49,6 @@ public class RateLimitFilter implements Filter {
             boolean rateLimitReached = rateLimitResponse.getRateLimitReached();
 
             if (rateLimitReached) {
-
                 httpServletResponse
                         .sendError(429, "Rate limit exceeded for period " + rateLimitResponse.getRateLimitPeriod());
             } else {
@@ -63,7 +66,7 @@ public class RateLimitFilter implements Filter {
             Uri uri = new Uri(requestUri);
             return uri.getPath();
         } catch (MalformedURLException e) {
-            //ignored
+            LOGGER.error("Malformed URL, should not have happened " + requestUri, e);
         }
         return null;
     }
