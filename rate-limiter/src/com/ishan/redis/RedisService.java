@@ -10,7 +10,6 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -67,7 +66,7 @@ public class RedisService {
         }
     }
 
-    public static List<Object> pipeline(Set<RateLimitValidator.RedisKeyWithTTL> redisKeysWithTTL) {
+    public static List<Object> pipeline(List<RateLimitValidator.RedisKeyWithTTL> redisKeysWithTTL) {
         Pipeline pipelined = JEDIS_POOL.getResource().pipelined();
         for (RateLimitValidator.RedisKeyWithTTL redisKeyWithTTL : redisKeysWithTTL) {
             pipelined.incr(redisKeyWithTTL.getKey());

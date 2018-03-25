@@ -1,5 +1,6 @@
 package com.ishan.base;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.ishan.redis.RedisService;
 import org.apache.commons.collections4.MapUtils;
@@ -31,11 +32,18 @@ public class RateLimitValidator {
      * @return The {@link RateLimitResponse} containing the status of rate limit
      */
     public static RateLimitResponse validateRateLimited(ClientConfig clientConfig, RequestDetails requestDetails) {
-        Set<RedisKeyWithTTL> redisKeys = constructRedisKeys(clientConfig, requestDetails);
+        List<RedisKeyWithTTL> redisKeys = constructRedisKeys(clientConfig, requestDetails);
         List<Object> pipeline = RedisService.pipeline(redisKeys);
         return validateRateLimited(pipeline, clientConfig);
     }
 
+    /**
+     * This actually checks if the corresponding values received from
+     *
+     * @param pipeline The response from Redis pipeline
+     * @param clientConfig The {@link ClientConfig} config for the client
+     * @return The {@link RateLimitResponse} response for rate limits
+     */
     private static RateLimitResponse validateRateLimited(List<Object> pipeline, ClientConfig clientConfig) {
         return RateLimitResponse.withRateLimitNotReached();
     }
@@ -54,8 +62,8 @@ public class RateLimitValidator {
      * @param requestDetails The {@link RequestDetails} containing details of the request
      * @return A set of constructed keys for redis
      */
-    private static Set<RedisKeyWithTTL> constructRedisKeys(ClientConfig clientConfig, RequestDetails requestDetails) {
-        Set<RedisKeyWithTTL> keys = Sets.newHashSet();
+    private static List<RedisKeyWithTTL> constructRedisKeys(ClientConfig clientConfig, RequestDetails requestDetails) {
+        List<RedisKeyWithTTL> keys = Lists.newArrayList();
         if (clientConfig.getRateLimits() != null) {
             //This means that this client has been configured with these limits
             ClientConfig.RateLimits rateLimits = clientConfig.getRateLimits();
