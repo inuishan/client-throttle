@@ -70,7 +70,7 @@ public class RedisService {
     public static List<Object> pipeline(Set<RateLimitValidator.RedisKeyWithTTL> redisKeysWithTTL) {
         Pipeline pipelined = JEDIS_POOL.getResource().pipelined();
         for (RateLimitValidator.RedisKeyWithTTL redisKeyWithTTL : redisKeysWithTTL) {
-            pipelined.get(redisKeyWithTTL.getKey());
+            pipelined.incr(redisKeyWithTTL.getKey());
             pipelined.expire(redisKeyWithTTL.getKey(), getSeconds(redisKeyWithTTL.getTtl()));
         }
         return pipelined.syncAndReturnAll();
