@@ -41,7 +41,11 @@ public class RateLimitValidator {
     }
 
     /**
-     * This actually checks if the corresponding values received from
+     * This actually checks if the corresponding values received from redis.
+     *
+     * This firstly checks if the limit is exceeded for a client.
+     * It then checks for endpoint.
+     * It then checks for method.
      *
      * @param pipeline     The response from Redis pipeline
      * @param clientConfig The {@link ClientConfig} config for the client
@@ -49,19 +53,34 @@ public class RateLimitValidator {
      */
     private static RateLimitResponse validateRateLimited(List<Object> pipeline, ClientConfig clientConfig,
                                                          List<RedisKeyDetails> redisKeyWithTTLs) {
-        Map<String, RedisKeyDetails> keyVsDetails = transformMap(redisKeyWithTTLs, RedisKeyDetails::getKey);
         int index = 0;
         for (Object currentLimitObj : pipeline) {
             long currentLimit = (long) currentLimitObj;
             RedisKeyDetails redisKeyDetails = redisKeyWithTTLs.get(index++);
+            RateLimitPeriod period = redisKeyDetails.getPeriod();
             if (redisKeyDetails.getEndpoint() == null && redisKeyDetails.getHttpMethod() == null) {
                 //This is client specific limits
                 ClientConfig.RateLimits rateLimits = clientConfig.getRateLimits();
                 Map<RateLimitPeriod, Integer> periodLimits = rateLimits.getPeriodLimits();
-                RateLimitPeriod period = redisKeyDetails.getPeriod();
                 Integer limit = periodLimits.get(period);
                 if (currentLimit > limit) {
                     return RateLimitResponse.withRateLimitReached(period, RateLimitViolationCause.CLIENT);
+                }
+            } else if (redisKeyDetails.getHttpMethod() != null) {
+                //This is http method specific stuff
+                ClientConfig.RateLimits rateLimits = clientConfig.getMethodVsLimits()
+                        .get(HttpMethod.valueOf(redisKeyDetails.getHttpMethod()));
+                Integer limit = rateLimits.getPeriodLimits().get(period);
+                if (currentLimit > limit) {
+                    return RateLimitResponse.withRateLimitReached(period, RateLimitViolationCause.METHOD);
+                }
+            } else if (redisKeyDetails.getEndpoint() != null) {
+                //This is endpoint specific stuff
+                ClientConfig.RateLimits rateLimits = clientConfig.getEndpointVsLimits()
+                        .get(redisKeyDetails.getEndpoint());
+                Integer limit = rateLimits.getPeriodLimits().get(period);
+                if (currentLimit > limit) {
+                    return RateLimitResponse.withRateLimitReached(period, RateLimitViolationCause.ENDPOINT);
                 }
             }
         }
