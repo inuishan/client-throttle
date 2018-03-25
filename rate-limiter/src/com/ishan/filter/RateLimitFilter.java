@@ -39,7 +39,7 @@ public class RateLimitFilter implements Filter {
 
             String endpoint = extractEndPoint(requestURI);
 
-            RateLimitValidator.RateLimitResponse rateLimitResponse = RateLimitValidator
+            RateLimitResponse rateLimitResponse = RateLimitValidator
                     .validateRateLimited(clientConfig, new RequestDetails(currentTime, httpMethod, endpoint, clientId));
 
             boolean rateLimitReached = rateLimitResponse.getRateLimitReached();
